@@ -24,10 +24,14 @@ import bagit_profile
 ```
 
 Instantiate an existing Bag using [bagit](https://github.com/edsu/bagit).
-`bag = bagit.Bag('mydir')`
+```python
+bag = bagit.Bag('mydir')
+```
 
 Instantiate a profile, supplying its URI.
-```my_profile = bagit_profile.Profile('http://example.com/bagitprofile.json')```
+```python
+my_profile = bagit_profile.Profile('http://example.com/bagitprofile.json')
+```
 
 Validate 'Serialization' and 'Accept-Serialization'. This must be done before .validate(bag) is called. 'mydir' is the path to the Bag.
 
