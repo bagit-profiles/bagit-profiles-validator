@@ -49,7 +49,7 @@ else:
 
 Or from the commandline:
 
-```bagit.py 'http://uri.for.profile/profile.json' path/to/bag```
+```bagit_profile.py 'http://uri.for.profile/profile.json' path/to/bag```
 
 ### Test suite
 
