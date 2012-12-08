@@ -33,18 +33,18 @@ Validate 'Serialization' and 'Accept-Serialization'. This must be done before .v
 
 ```python
 if my_profile.validate_serialization('mydir'):
-      print "Serialization validates"
-      else:
-            print "Serialization does not validate"
+    print "Serialization validates"
+else:
+    print "Serialization does not validate"
 ```
 
 Validate the rest of the profile.
 
 ```python
 if my_profile.validate(bag):
-      print "Validates"
-      else:
-            print "Does not validate"
+    print "Validates"
+else:
+    print "Does not validate"
 ```
 
 Or from the commandline:
