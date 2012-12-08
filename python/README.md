@@ -27,7 +27,7 @@ Instantiate an existing Bag using [bagit](https://github.com/edsu/bagit).
 `bag = bagit.Bag('mydir')`
 
 Instantiate a profile, supplying its URI.
-`my_profile = bagit_profile.Profile('http://example.com/bagitprofile.json')`
+```my_profile = bagit_profile.Profile('http://example.com/bagitprofile.json')```
 
 Validate 'Serialization' and 'Accept-Serialization'. This must be done before .validate(bag) is called. 'mydir' is the path to the Bag.
 
@@ -49,17 +49,17 @@ if my_profile.validate(bag):
 
 Or from the commandline:
 
-`bagit.py 'http://uri.for.profile/profile.json' path/to/bag`
+```bagit.py 'http://uri.for.profile/profile.json' path/to/bag```
 
 ### Test suite
 
-`python setup.py test`
+```python setup.py test```
 
 ### Development
 
 1. [Fork the repository](https://help.github.com/articles/fork-a-repo)
 2. Do something awesome!
-3. [Submit a pull request](https://help.github.com/articles/creating-a-pull-request) explianing what your plugin does
+3. [Submit a pull request](https://help.github.com/articles/creating-a-pull-request) explianing what your code does
 
 ### License
 
