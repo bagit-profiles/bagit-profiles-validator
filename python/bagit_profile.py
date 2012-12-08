@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# @todo: Improve exception handling so non-fatal exceptions do not kill script.
-
 """
 A simple Python module for validating BagIt profiles. See https://github.com/ruebot/bagit-profiles
 for more information.
@@ -96,7 +94,6 @@ class Profile(object):
 
     # Check self.profile['bag-profile-info'] to see if "Source-Organization", 
     # "External-Description", "Version" and "BagIt-Profile-Identifier" are present. 
-    # Errors here are fatal.
     def validate_bagit_profile_info(self, profile):
         if 'Source-Organization' not in profile['BagIt-Profile-Info']:
             raise ProfileValidationError("Required 'Source-Organization' tag is not in 'BagIt-Profile-Info'.")
@@ -112,12 +109,7 @@ class Profile(object):
             return False
         return True
 
-    # Validate tags in self.profile['Bag-Info']. Profile data for this constrain looks like:
-    # u'Bag-Info': {   u'Bagging-Date': {   u'required': True},
-    #                 u'Contact-Phone': {   u'required': True},
-    #                 u'Source-Organization': {   u'required': True,
-    #                                             u'values': [   u'Simon Fraser University',
-    #                                                            u'York University']}},
+    # Validate tags in self.profile['Bag-Info']. 
     def validate_bag_info(self, bag):
         # First, check for the required 'BagIt-Profile-Identifier' tag and ensure it has the same value
         # as self.url.
@@ -218,7 +210,6 @@ def _make_opt_parser():
   parser = BagitProfileOptionParser(usage='usage: %prog [options] profile_uri bag_dir')
   parser.add_option('--quiet', action='store_true', dest='quiet')
   parser.add_option('--log', action='store', dest='log')
-
   return parser
 
 def _configure_logging(opts):
