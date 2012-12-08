@@ -9,7 +9,7 @@ setup(
       name = 'bagit_profile',
       version = '0.0.1',
       url = 'https://github.com/ruebot/bagit-profiles',
-      install_requires=['bagit'],
+      install_requires=['bagit', 'requests'],
       author = [
         'Mark Jordon',
         'Nick Ruest',
