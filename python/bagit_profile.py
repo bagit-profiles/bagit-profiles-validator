@@ -168,10 +168,9 @@ class Profile(object):
         return True
 
     # Perform tests on 'Serialization' and 'Accept-Serialization', in one function.
-    # Since the https://github.com/edsu/bagit only operates on unserialized Bags,
-    # 1) we can't pass this function or the next the bag object (since it is always 
-    # unserialized). Instead, pass them the path to the Bag, and 2) this method need
-    # to be called before validate().
+    # Since https://github.com/edsu/bagit can't tell us if a Bag is serialized or
+    # not, we need to pass this function the path to the Bag, not the object. Also,
+    # this method needs to be called before .validate().
     def validate_serialization(self, path_to_bag):
         # First, perform the two negative tests.
         if not os.path.exists(path_to_bag):
