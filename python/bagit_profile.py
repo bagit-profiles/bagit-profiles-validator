@@ -246,7 +246,11 @@ if __name__ == '__main__':
         print "Serialization does not validate"
         rc = 1
         sys.exit(rc)
-
-    profile.validate(bag)
+        
+    # Validate the rest of the profile.
+    if profile.validate(bag):
+        print "Valdiates"
+    else:
+        print "Does not validate"
 
     sys.exit(rc)
