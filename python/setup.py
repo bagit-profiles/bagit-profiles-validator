@@ -10,11 +10,8 @@ setup(
       version = '0.0.1',
       url = 'https://github.com/ruebot/bagit-profiles',
       install_requires=['bagit', 'requests'],
-      author = 'Mark Jordon', 'Nick Ruest',
-      author_email = [
-        'mjordan@sfu.ca',
-        'ruestn@gmail.com',
-      ],
+      author = 'Mark Jordon, Nick Ruest',
+      author_email = 'mjordan@sfu.ca, ruestn@gmail.com',
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],
       description = description,
