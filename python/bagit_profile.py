@@ -111,7 +111,13 @@ class Profile(object):
 
     # Validate tags in self.profile['Bag-Info']. 
     def validate_bag_info(self, bag):
-        # First, check for the required 'BagIt-Profile-Identifier' tag and ensure it has the same value
+        # First, check to see if bag-info.txt exists.
+        path_to_baginfotxt = os.path.join(bag.path, 'bag-info.txt')
+        if not os.path.exists(path_to_baginfotxt):
+            raise ProfileValidationError("bag-info.txt is not present.")
+            logging.error(bag + "bag-info.txt is not present." + '\n')
+            return False
+        # Then check for the required 'BagIt-Profile-Identifier' tag and ensure it has the same value
         # as self.url.
         if 'BagIt-Profile-Identifier' not in bag.info:
             raise ProfileValidationError("Required 'BagIt-Profile-Identifier' tag is not in bag-info.txt.")
