@@ -16,6 +16,10 @@ bagit_profile.py is a single-file python module that you can drop into your proj
 2. `cd bagit-profiles/python`
 3. `sudo python setup.py install`
 
+or:
+
+```pip install bagit_profile```
+
 ### Usage
 
 ```python

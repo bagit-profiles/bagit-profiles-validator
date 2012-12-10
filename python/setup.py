@@ -23,5 +23,6 @@ setup(
         'Topic :: Communications :: File Sharing',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Filesystems',
+        'Topic :: Utilities',
       ],
 )
