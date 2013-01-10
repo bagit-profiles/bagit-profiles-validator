@@ -1,5 +1,11 @@
 from setuptools import setup
 
+import pandoc
+pandoc.core.PANDOC_PATH = '/usr/bin/pandoc'
+
+doc = pandoc.Document()
+doc.markdown = open('README.md').read()
+
 description = \
     """
     This module can be used to validate BagitProfiles.
@@ -15,6 +21,7 @@ setup(
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],
       description = description,
+      long_description = doc.rst,
       platforms = ['POSIX'],
       test_suite = 'test',
       classifiers = [
