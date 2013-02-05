@@ -86,6 +86,3 @@ License
    :alt: CC0
 
    CC0
-
-.. |Build
-Status| image:: https://secure.travis-ci.org/ruebot/bagit-profiles-validator.png
