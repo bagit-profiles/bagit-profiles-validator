@@ -1,11 +1,5 @@
 from setuptools import setup
 
-import pandoc
-pandoc.core.PANDOC_PATH = '/usr/bin/pandoc'
-
-doc = pandoc.Document()
-doc.markdown = open('README.md').read()
-
 description = \
     """
     This module can be used to validate BagitProfiles.
@@ -14,7 +8,7 @@ description = \
 setup(
       name = 'bagit_profile',
       version = '0.0.1',
-      url = 'https://github.com/ruebot/bagit-profiles',
+      url = 'https://github.com/ruebot/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordon, Nick Ruest',
       author_email = 'mjordan@sfu.ca, ruestn@gmail.com',
