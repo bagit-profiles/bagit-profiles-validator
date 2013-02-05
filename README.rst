@@ -1,5 +1,5 @@
-Bagit Profile
-=============
+Bagit Profile (validator)
+=========================
 
 Description
 ~~~~~~~~~~~

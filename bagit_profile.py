@@ -33,10 +33,12 @@ else:
 """
 import os
 import sys
-import requests
+#import requests
 import mimetypes
 import logging
 import optparse
+import json
+import urllib
 
 # Define an exceptin class for use within this module.
 class ProfileValidationError(Exception):
@@ -53,8 +55,11 @@ class Profile(object):
 
     def get_profile(self):
         try:
-            r = requests.get(self.url)
-            profile = r.json
+            #r = requests.get(self.url)
+            #profile = r.json
+            f = urllib.urlopen(self.url)
+            profile = f.read()
+            profile = json.loads(profile)
             self.profile = profile
         except:
             print "Cannot retrieve profile from ", self.url

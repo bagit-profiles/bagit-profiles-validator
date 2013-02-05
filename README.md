@@ -1,4 +1,4 @@
-# Bagit Profile
+# Bagit Profile (validator)
 
 [![Build Status](https://secure.travis-ci.org/ruebot/bagit-profiles-validator.png)](http://travis-ci.org/ruebot/bagit-profiles)
 
