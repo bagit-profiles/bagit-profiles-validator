@@ -15,7 +15,7 @@ setup(
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],
       description = description,
-      long_description = doc.rst,
+      long_description = ['README.rst'],
       platforms = ['POSIX'],
       test_suite = 'test',
       classifiers = [
