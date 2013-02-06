@@ -4,6 +4,8 @@ description = \
     """
     This module can be used to validate BagitProfiles.
     """
+with open('README.rst') as file:
+  long_description = file.read()
 
 setup(
       name = 'bagit_profile',
@@ -15,7 +17,7 @@ setup(
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],
       description = description,
-      long_description = ['README.rst'],
+      long_description = long_description,
       platforms = ['POSIX'],
       test_suite = 'test',
       classifiers = [
