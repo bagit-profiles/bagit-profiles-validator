@@ -12,7 +12,7 @@ This module is intended for use with [bagit](https://github.com/edsu/bagit) but 
 
 bagit_profile.py is a single-file python module that you can drop into your project as needed or you can install globally with:
 
-1. `git clone https://github.com/ruebot/bagit-profiles.git`
+1. `git clone https://github.com/ruebot/bagit-profiles-validator.git`
 2. `cd bagit-profiles/python`
 3. `sudo python setup.py install`
 
