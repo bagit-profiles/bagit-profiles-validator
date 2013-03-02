@@ -148,14 +148,14 @@ class Profile(object):
             config = self.profile['Bag-Info'][tag]
             if 'required' in config and config['required'] is True: 
                 if tag not in bag.info:
-                    raise ProfileValidationError("Required tag '%s' is not present in bag-info.txt." + tag)
-                    logging.error(bag + "Required tag '%s' is not present in bag-info.txt." + tag + '\n')
+                    raise ProfileValidationError("Required tag '%s' is not present in bag-info.txt." % (tag))
+                    logging.error(bag + "Required tag '%s' is not present in bag-info.txt." % (tag) + '\n')
                 # If the tag is in bag-info.txt, check to see if the value is constrained.
                 else:
                     if 'values' in config: 
                         if bag.info[tag] not in config['values']:
                             raise ProfileValidationError("Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]))
-                            logging.error(bag + "Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." + tag + bag.info[tag] + '\n')
+                            logging.error(bag + "Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]) + '\n')
 
         return True
 
@@ -165,8 +165,8 @@ class Profile(object):
         for manifest_type in self.profile['Manifests-Required']:
             path_to_manifest = os.path.join(bag.path, 'manifest-' + manifest_type + '.txt')
             if not os.path.exists(path_to_manifest):
-                raise ProfileValidationError("Required manifest type '%s' is not present in Bag." + manifest_type)
-                logging.error(bag + "Required manifest type '%s' is not present in Bag." +  manifest_type + '\n')
+                raise ProfileValidationError("Required manifest type '%s' is not present in Bag." % (manifest_type))
+                logging.error(bag + "Required manifest type '%s' is not present in Bag." %  (manifest_type) + '\n')
         return True
 
     # For each member of self.profile['tag_manifests_required'], throw an exception if 
@@ -178,8 +178,8 @@ class Profile(object):
         for tag_manifest_type in self.profile['Tag-Manifests-Required']:
             path_to_tag_manifest = os.path.join(bag.path, 'tagmanifest-' + tag_manifest_type + '.txt')
             if not os.path.exists(path_to_tag_manifest):
-                raise ProfileValidationError("Required tag manifest type '%s' is not present in Bag." % tag_manifest_type)
-                logging.error(bag + "Required tag manifest type '%s' is not present in Bag." %  tag_manifest_type + '\n')
+                raise ProfileValidationError("Required tag manifest type '%s' is not present in Bag." % (tag_manifest_type))
+                logging.error(bag + "Required tag manifest type '%s' is not present in Bag." % (tag_manifest_type) + '\n')
         return True
 
     # For each member of self.profile['Tag-Files-Required'], throw an exception if 
@@ -191,8 +191,8 @@ class Profile(object):
         for tag_file in self.profile['Tag-Files-Required']:
             path_to_tag_file = os.path.join(bag.path, tag_file)
             if not os.path.exists(path_to_tag_file):
-                raise ProfileValidationError("Required tag file '%s' is not present in Bag." % path_to_tag_file)
-                logging.error(bag + "Required tag file '%s' is not present in Bag." %  path_to_tag_file + '\n')
+                raise ProfileValidationError("Required tag file '%s' is not present in Bag." % (path_to_tag_file))
+                logging.error(bag + "Required tag file '%s' is not present in Bag." % (path_to_tag_file) + '\n')
         return True
 
     # Check to see if this constraint is False, and if it is, then check to see
