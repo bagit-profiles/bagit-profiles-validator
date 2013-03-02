@@ -98,7 +98,7 @@ class Profile(object):
         try:
             self.validate_allow_fetch(bag)
         except ProfileValidationError as e:
-            print "Required manifests not found: ", e.value
+            print "fetch.txt is present but is not allowed: ", e.value
             valid = False
         try:
             self.validate_accept_bagit_version(bag)
