@@ -86,6 +86,16 @@ class Profile(object):
             print "Required manifests not found: ", e.value
             valid = False
         try:
+            self.validate_tag_manifests_required(bag)
+        except ProfileValidationError as e:
+            print "Required tag manifests not found: ", e.value
+            valid = False
+        try:
+            self.validate_tag_files_required(bag)
+        except ProfileValidationError as e:
+            print "Required tag files not found: ", e.value
+            valid = False
+        try:
             self.validate_allow_fetch(bag)
         except ProfileValidationError as e:
             print "Required manifests not found: ", e.value
@@ -159,6 +169,31 @@ class Profile(object):
                 logging.error(bag + "Required manifest type '%s' is not present in Bag." +  manifest_type + '\n')
         return True
 
+    # For each member of self.profile['tag_manifests_required'], throw an exception if 
+    # the tag manifest file is not present.
+    def validate_tag_manifests_required(self, bag):
+        # Tag manifests are optional, so we return True if none are defined in the profile.
+        if not self.profile.has_key('Tag-Manifests-Required'):
+            return True
+        for tag_manifest_type in self.profile['Tag-Manifests-Required']:
+            path_to_tag_manifest = os.path.join(bag.path, 'tagmanifest-' + tag_manifest_type + '.txt')
+            if not os.path.exists(path_to_tag_manifest):
+                raise ProfileValidationError("Required tag manifest type '%s' is not present in Bag." % tag_manifest_type)
+                logging.error(bag + "Required tag manifest type '%s' is not present in Bag." %  tag_manifest_type + '\n')
+        return True
+
+    # For each member of self.profile['Tag-Files-Required'], throw an exception if 
+    # the path does not exist.
+    def validate_tag_files_required(self, bag):
+        # Tag files are optional, so we return True if none are defined in the profile.
+        if not self.profile.has_key('Tag-Files-Required'):
+            return True
+        for tag_file in self.profile['Tag-Files-Required']:
+            path_to_tag_file = os.path.join(bag.path, tag_file)
+            if not os.path.exists(path_to_tag_file):
+                raise ProfileValidationError("Required tag file '%s' is not present in Bag." % path_to_tag_file)
+                logging.error(bag + "Required tag file '%s' is not present in Bag." %  path_to_tag_file + '\n')
+        return True
 
     # Check to see if this constraint is False, and if it is, then check to see
     # if the fetch.txt file exists. If it does, throw an exception.
