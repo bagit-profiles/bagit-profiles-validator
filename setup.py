@@ -9,7 +9,7 @@ with open('README.rst') as file:
 
 setup(
       name = 'bagit_profile',
-      version = '0.0.1',
+      version = '0.0.2',
       url = 'https://github.com/ruebot/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordon, Nick Ruest',
