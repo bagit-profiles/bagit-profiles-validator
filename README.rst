@@ -1,16 +1,18 @@
 Bagit Profile (validator)
 =========================
 
+|Build Status|
+
 Description
 ~~~~~~~~~~~
 
 A simple Python module for validating BagIt profiles. See the `BagIt
 Profiles Specification
-(draft) <https://github.com/ruebot/bagit-profiles/blob/master/README.md>`_
+(draft) <https://github.com/ruebot/bagit-profiles/blob/master/README.md>`__
 for more information.
 
 This module is intended for use with
-`bagit <https://github.com/edsu/bagit>`_ but does not extend it.
+`bagit <https://github.com/edsu/bagit>`__ but does not extend it.
 
 Installation
 ~~~~~~~~~~~~
@@ -29,13 +31,13 @@ or:
 Usage
 ~~~~~
 
-::
+.. code:: python
 
     import bagit
     import bagit_profile
 
 Instantiate an existing Bag using
-`bagit <https://github.com/edsu/bagit>`_.
+`bagit <https://github.com/edsu/bagit>`__.
 ``python bag = bagit.Bag('mydir')``
 
 Instantiate a profile, supplying its URI.
@@ -44,7 +46,7 @@ Instantiate a profile, supplying its URI.
 Validate 'Serialization' and 'Accept-Serialization'. This must be done
 before .validate(bag) is called. 'mydir' is the path to the Bag.
 
-::
+.. code:: python
 
     if my_profile.validate_serialization('mydir'):
         print "Serialization validates"
@@ -53,7 +55,7 @@ before .validate(bag) is called. 'mydir' is the path to the Bag.
 
 Validate the rest of the profile.
 
-::
+.. code:: python
 
     if my_profile.validate(bag):
         print "Validates"
@@ -72,17 +74,20 @@ Test suite
 Development
 ~~~~~~~~~~~
 
-1. `Fork the repository <https://help.github.com/articles/fork-a-repo>`_
+1. `Fork the
+   repository <https://help.github.com/articles/fork-a-repo>`__
 2. Do something awesome!
 3. `Submit a pull
-   request <https://help.github.com/articles/creating-a-pull-request>`_
+   request <https://help.github.com/articles/creating-a-pull-request>`__
    explianing what your code does
 
 License
 ~~~~~~~
 
 .. figure:: http://i.creativecommons.org/p/zero/1.0/88x31.png
-   :align: center
    :alt: CC0
 
    CC0
+
+.. |Build Status| image:: https://travis-ci.org/ruebot/bagit-profiles-validator.png
+   :target: https://travis-ci.org/ruebot/bagit-profiles-validator
