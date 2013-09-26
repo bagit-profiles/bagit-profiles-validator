@@ -4,12 +4,9 @@ description = \
     """
     This module can be used to validate BagitProfiles.
     """
-with open('README.rst') as file:
-  long_description = file.read()
-
 setup(
       name = 'bagit_profile',
-      version = '0.0.2',
+      version = '0.0.5',
       url = 'https://github.com/ruebot/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordon, Nick Ruest',
@@ -17,7 +14,8 @@ setup(
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],
       description = description,
-      long_description = long_description,
+      long_description = open('README.rst').read(),
+      package_data = { '': ['README.rst'] },
       platforms = ['POSIX'],
       test_suite = 'test',
       classifiers = [
