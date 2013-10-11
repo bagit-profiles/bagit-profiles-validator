@@ -235,7 +235,7 @@ class Profile(object):
         if self.profile['Serialization'] == 'required' or self.profile['Serialization'] == 'optional' and os.path.isfile(path_to_bag):
             bag_path, bag_file = os.path.split(path_to_bag)
             mtype = mimetypes.guess_type(bag_file)
-            if mtype not in self.profile['Accept-Serialization']:
+            if mtype[0] not in self.profile['Accept-Serialization']:
                 raise ProfileValidationError("Bag serialization type is not in the list of allowed values.")
                 logging.error(path_to_bag + "Bag serialization is forbidden but Bag appears is a file." + '\n')
       
