@@ -36,7 +36,11 @@ class Test_bag_profile(unittest.TestCase):
     self.assertTrue(self.profile.validate_accept_bagit_version(self.bag))
     
   def test_validate_serialization(self):
+    # Test on unzipped Bag.
     self.assertTrue(self.profile.validate_serialization(os.path.abspath("test-bar")))
+    # Test on zipped Bag.
+    self.profile = bagit_profile.Profile('https://raw.github.com/ruebot/bagit-profiles/master/bagProfileFoo.json')
+    self.assertTrue(self.profile.validate_serialization(os.path.abspath("test-foo.zip")))
 
 if __name__ == '__main__':
   unittest.main()
