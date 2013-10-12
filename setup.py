@@ -6,7 +6,7 @@ description = \
     """
 setup(
       name = 'bagit_profile',
-      version = '0.0.5',
+      version = '1.0.0',
       url = 'https://github.com/ruebot/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordon, Nick Ruest',
