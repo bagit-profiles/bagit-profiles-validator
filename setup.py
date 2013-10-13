@@ -9,7 +9,7 @@ setup(
       version = '1.0.0',
       url = 'https://github.com/ruebot/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
-      author = 'Mark Jordon, Nick Ruest',
+      author = 'Mark Jordan, Nick Ruest',
       author_email = 'mjordan@sfu.ca, ruestn@gmail.com',
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],

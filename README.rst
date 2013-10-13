@@ -8,7 +8,7 @@ Description
 
 A simple Python module for validating BagIt profiles. See the `BagIt
 Profiles Specification
-(draft) <https://github.com/ruebot/bagit-profiles/blob/master/README.md>`__
+<https://github.com/ruebot/bagit-profiles/blob/master/README.md>`__
 for more information.
 
 This module is intended for use with
