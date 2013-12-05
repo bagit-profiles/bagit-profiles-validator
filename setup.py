@@ -6,11 +6,12 @@ description = \
     """
 setup(
       name = 'bagit_profile',
-      version = '1.0.1',
+      version = '1.0.2',
       url = 'https://github.com/ruebot/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordan, Nick Ruest',
       author_email = 'mjordan@sfu.ca, ruestn@gmail.com',
+      license = 'CC0',
       py_modules = ['bagit_profile'],
       scripts = ['bagit_profile.py'],
       description = description,
