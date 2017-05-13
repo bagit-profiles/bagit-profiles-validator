@@ -17,7 +17,7 @@ bag = bagit.Bag('mydir')
 # Instantiate a profile, supplying its URI.
 my_profile = bagit_profile.Profile('http://example.com/bagitprofile.json')
 
-# Validate 'Serialization' and 'Accept-Serialization'. This must be done 
+# Validate 'Serialization' and 'Accept-Serialization'. This must be done
 # before .validate(bag) is called. 'mydir' is the path to the Bag.
 if my_profile.validate_serialization('mydir'):
     print "Serialization validates"
@@ -65,7 +65,7 @@ class Profile(object):
             print "Cannot retrieve profile from ", self.url
             logging.error("Cannot retrieve profile from " + self.url)
             # This is a fatal error.
-            sys.exit(1) 
+            sys.exit(1)
 
         self.validate_bagit_profile_info(profile)
         return self.profile
@@ -107,8 +107,8 @@ class Profile(object):
             valid = False
         return valid
 
-    # Check self.profile['bag-profile-info'] to see if "Source-Organization", 
-    # "External-Description", "Version" and "BagIt-Profile-Identifier" are present. 
+    # Check self.profile['bag-profile-info'] to see if "Source-Organization",
+    # "External-Description", "Version" and "BagIt-Profile-Identifier" are present.
     def validate_bagit_profile_info(self, profile):
         if 'Source-Organization' not in profile['BagIt-Profile-Info']:
             raise ProfileValidationError("Required 'Source-Organization' tag is not in 'BagIt-Profile-Info'.")
@@ -124,7 +124,7 @@ class Profile(object):
             return False
         return True
 
-    # Validate tags in self.profile['Bag-Info']. 
+    # Validate tags in self.profile['Bag-Info'].
     def validate_bag_info(self, bag):
         # First, check to see if bag-info.txt exists.
         path_to_baginfotxt = os.path.join(bag.path, 'bag-info.txt')
@@ -143,23 +143,28 @@ class Profile(object):
                 raise ProfileValidationError("'BagIt-Profile-Identifier' tag does not contain this profile's URI.")
                 logging.error(bag + "'BagIt-Profile-Identifier' tag does not contain this profile's URI." + '\n')
         # Then, iterate through self.profile['Bag-Info'] and if a key has a dict containing a 'required' key that is
-        # True, check to see if that key exists in bag.info. 
+        # True, check to see if that key exists in bag.info.
         for tag in self.profile['Bag-Info']:
             config = self.profile['Bag-Info'][tag]
-            if 'required' in config and config['required'] is True: 
+            if 'required' in config and config['required'] is True:
                 if tag not in bag.info:
                     raise ProfileValidationError("Required tag '%s' is not present in bag-info.txt." % (tag))
                     logging.error(bag + "Required tag '%s' is not present in bag-info.txt." % (tag) + '\n')
                 # If the tag is in bag-info.txt, check to see if the value is constrained.
                 else:
-                    if 'values' in config: 
+                    if 'values' in config:
                         if bag.info[tag] not in config['values']:
                             raise ProfileValidationError("Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]))
                             logging.error(bag + "Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]) + '\n')
-
+            # If the tag is nonrepeatable, make sure it only exists once. We do this by checking to see if the value for the key is a list.
+            if 'repeatable' in config and config['repeatable'] is False:
+                value = bag.info.get(tag)
+                if type(value) is list:
+                    raise ProfileValidationError("Nonrepeatable tag '%s' occurs %s times in bag-info.txt." % (tag, len(value)))
+                    logging.error(bag + "Nonrepeatable tag '%s' occurs %s times in bag-info.txt." % (tag, len(value)) + '\n')
         return True
 
-    # For each member of self.profile['manifests_required'], throw an exception if 
+    # For each member of self.profile['manifests_required'], throw an exception if
     # the manifest file is not present.
     def validate_manifests_required(self, bag):
         for manifest_type in self.profile['Manifests-Required']:
@@ -169,7 +174,7 @@ class Profile(object):
                 logging.error(bag + "Required manifest type '%s' is not present in Bag." %  (manifest_type) + '\n')
         return True
 
-    # For each member of self.profile['tag_manifests_required'], throw an exception if 
+    # For each member of self.profile['tag_manifests_required'], throw an exception if
     # the tag manifest file is not present.
     def validate_tag_manifests_required(self, bag):
         # Tag manifests are optional, so we return True if none are defined in the profile.
@@ -182,7 +187,7 @@ class Profile(object):
                 logging.error(bag + "Required tag manifest type '%s' is not present in Bag." % (tag_manifest_type) + '\n')
         return True
 
-    # For each member of self.profile['Tag-Files-Required'], throw an exception if 
+    # For each member of self.profile['Tag-Files-Required'], throw an exception if
     # the path does not exist.
     def validate_tag_files_required(self, bag):
         # Tag files are optional, so we return True if none are defined in the profile.
@@ -198,7 +203,7 @@ class Profile(object):
     # Check to see if this constraint is False, and if it is, then check to see
     # if the fetch.txt file exists. If it does, throw an exception.
     def validate_allow_fetch(self, bag):
-        if self.profile['Allow-Fetch.txt'] is False: 
+        if self.profile['Allow-Fetch.txt'] is False:
             path_to_fetchtxt = os.path.join(bag.path, 'fetch.txt')
             if os.path.exists(path_to_fetchtxt):
                 raise ProfileValidationError("Fetch.txt is present but is not allowed.")
@@ -238,7 +243,7 @@ class Profile(object):
             if mtype[0] not in self.profile['Accept-Serialization']:
                 raise ProfileValidationError("Bag serialization type is not in the list of allowed values.")
                 logging.error(path_to_bag + "Bag serialization is forbidden but Bag appears is a file." + '\n')
-      
+
         # If we have passed the serialization tests, return True.
         return True
 
@@ -291,7 +296,7 @@ if __name__ == '__main__':
         print "Serialization does not validate"
         rc = 1
         sys.exit(rc)
-        
+
     # Validate the rest of the profile.
     if profile.validate(bag):
         print "Valdiates"
