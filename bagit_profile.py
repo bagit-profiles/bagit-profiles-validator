@@ -150,12 +150,11 @@ class Profile(object):
                 if tag not in bag.info:
                     raise ProfileValidationError("Required tag '%s' is not present in bag-info.txt." % (tag))
                     logging.error(bag + "Required tag '%s' is not present in bag-info.txt." % (tag) + '\n')
-                # If the tag is in bag-info.txt, check to see if the value is constrained.
-                else:
-                    if 'values' in config:
-                        if bag.info[tag] not in config['values']:
-                            raise ProfileValidationError("Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]))
-                            logging.error(bag + "Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]) + '\n')
+            # If the tag is in bag-info.txt, check to see if the value is constrained.
+            if 'values' in config:
+                if bag.info[tag] not in config['values']:
+                    raise ProfileValidationError("Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]))
+                    logging.error(bag + "Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (tag, bag.info[tag]) + '\n')
             # If the tag is nonrepeatable, make sure it only exists once. We do this by checking to see if the value for the key is a list.
             if 'repeatable' in config and config['repeatable'] is False:
                 value = bag.info.get(tag)
