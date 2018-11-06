@@ -1,6 +1,6 @@
 # Bagit Profile (validator)
 
-[![Build Status](https://travis-ci.org/ruebot/bagit-profiles-validator.png)](https://travis-ci.org/ruebot/bagit-profiles-validator)
+[![Build Status](https://circleci.com/gh/bagit-profiles/bagit-profiles-validator.svg?style=svg)](https://circleci.com/gh/bagit-profiles/bagit-profiles-validator)
 
 ### Description
 

@@ -1,7 +1,11 @@
 Bagit Profile (validator)
 =========================
 
-|Build Status|
+.. image:: https://img.shields.io/pypi/v/bagit_profile.svg
+ :target: https://pypi.org/project/bagit_profile/
+
+.. image:: https://circleci.com/gh/bagit-profiles/bagit-profiles-validator.svg?style=svg
+    :target: https://circleci.com/gh/bagit-profiles/bagit-profiles-validator
 
 Description
 ~~~~~~~~~~~
@@ -88,6 +92,3 @@ License
    :alt: CC0
 
    CC0
-
-.. |Build Status| image:: https://travis-ci.org/ruebot/bagit-profiles-validator.png
-   :target: https://travis-ci.org/ruebot/bagit-profiles-validator
