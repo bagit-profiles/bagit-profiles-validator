@@ -5,15 +5,15 @@
 
 ### Description
 
-A simple Python module for validating BagIt profiles. See the [BagIt Profiles Specification (draft)](https://github.com/ruebot/bagit-profiles/blob/master/README.md) for more information.
+A simple Python module for validating [BagIt](https://tools.ietf.org/html/rfc8493) profiles. See the [BagIt Profiles Specification (draft)](https://github.com/bagit-profiles/bagit-profiles/blob/master/README.md) for more information.
 
 This module is intended for use with [bagit](https://github.com/edsu/bagit) but does not extend it.
 
 ### Installation
 
-bagit_profile.py is a single-file python module that you can drop into your project as needed or you can install globally with:
+`bagit_profile.py` is a single-file Python module that you can drop into your project as needed or you can install globally with:
 
-1. `git clone https://github.com/ruebot/bagit-profiles-validator.git`
+1. `git clone https://github.com/bagit-profiles/bagit-profiles-validator.git`
 2. `cd bagit-profiles/python`
 3. `sudo python setup.py install`
 
@@ -28,7 +28,7 @@ import bagit
 import bagit_profile
 ```
 
-Instantiate an existing Bag using [bagit](https://github.com/edsu/bagit).
+Instantiate an existing Bag using [bagit-python](https://github.com/LibraryOfCongress/bagit-python).
 ```python
 bag = bagit.Bag('mydir')
 ```
@@ -38,7 +38,7 @@ Instantiate a profile, supplying its URI.
 my_profile = bagit_profile.Profile('http://example.com/bagitprofile.json')
 ```
 
-Validate 'Serialization' and 'Accept-Serialization'. This must be done before .validate(bag) is called. 'mydir' is the path to the Bag.
+Validate 'Serialization' and 'Accept-Serialization'. This must be done before `.validate(bag)` is called. `mydir` is the path to the Bag.
 
 ```python
 if my_profile.validate_serialization('mydir'):
