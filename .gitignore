@@ -4,3 +4,7 @@ bagit_profile.egg-info
 bagit_profile.pyc
 *.log
 test.pyc
+.pytest_cache
+__pycache__
+bagit_profile.py.bak
+module_test.py.bak

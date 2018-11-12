@@ -1,5 +1,6 @@
 # Bagit Profile (validator)
 
+[![PyPI version](https://img.shields.io/pypi/v/bagit_profile.svg)](https://pypi.org/project/bagit_profile)
 [![Build Status](https://circleci.com/gh/bagit-profiles/bagit-profiles-validator.svg?style=svg)](https://circleci.com/gh/bagit-profiles/bagit-profiles-validator)
 
 ### Description
