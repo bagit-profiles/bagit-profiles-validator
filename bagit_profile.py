@@ -64,7 +64,7 @@ class Profile(object): # pylint: disable=useless-object-inheritance
                 profile = profile
             else:
                 profile = json.loads(profile)
-        self.validate_bagit_profile_info(profile)
+        self.validate_bagit_profile(profile)
         self.profile = profile
 
     def _fail(self, msg):
@@ -89,7 +89,7 @@ class Profile(object): # pylint: disable=useless-object-inheritance
 
         return profile
 
-    # Call all the validate functions other than validate_bagit_profile_info(),
+    # Call all the validate functions other than validate_bagit_profile(),
     # which we've already called. 'Serialization' and 'Accept-Serialization'
     #  are validated in validate_serialization().
     def validate(self, bag):
@@ -126,6 +126,13 @@ class Profile(object): # pylint: disable=useless-object-inheritance
             valid = False
         return valid
 
+    def validate_bagit_profile(self, profile):
+        """
+        Validate the profile itself.
+        """
+        self.validate_bagit_profile_info(profile)
+        self.validate_bagit_profile_accept_bagit_versions(profile)
+
     # Check self.profile['bag-profile-info'] to see if "Source-Organization",
     # "External-Description", "Version" and "BagIt-Profile-Identifier" are present.
     def validate_bagit_profile_info(self, profile):
@@ -137,6 +144,19 @@ class Profile(object): # pylint: disable=useless-object-inheritance
         if 'BagIt-Profile-Identifier' not in profile['BagIt-Profile-Info']:
             self._fail("%s: Required 'BagIt-Profile-Identifier' tag is not in 'BagIt-Profile-Info'." % profile)
         return True
+
+    def validate_bagit_profile_accept_bagit_versions(self, profile):
+        """
+        Ensure all versions in 'Accept-BagIt-Version' are strings
+        """
+        if 'Accept-BagIt-Version' in profile:
+            for version_number in profile['Accept-BagIt-Version']:
+                # pylint: disable=undefined-variable
+                if (sys.version_info < (3, 0) and not isinstance(version_number, basestring)) or \
+                    (sys.version_info >= (3, 0) and not isinstance(version_number, str)):
+                    raise ProfileValidationError('Version number "%s" in "Accecpt-BagIt-Version" is not a string!' % version_number)
+        return True
+
 
     # Validate tags in self.profile['Bag-Info'].
     def validate_bag_info(self, bag):
