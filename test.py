@@ -11,7 +11,7 @@ PROFILE_URL = 'https://raw.github.com/bagit-profiles/bagit-profiles/master/bagPr
 class BagitProfileConstructorTest(TestCase):
 
     def setUp(self):
-        with open('./bagProfileBar.json', 'rb') as f:
+        with open('./fixtures/bagProfileBar.json', 'rb') as f:
             self.profile_str = f.read().decode('utf-8') if sys.version_info > (3,) else f.read()
         self.profile_dict = json.loads(self.profile_str)
 
@@ -25,7 +25,7 @@ class BagitProfileConstructorTest(TestCase):
 class Test_bag_profile(TestCase):
 
     def setUp(self):
-        self.bag = bagit.Bag('test-bar')
+        self.bag = bagit.Bag('fixtures/test-bar')
         self.profile = Profile(PROFILE_URL)
         self.retrieved_profile = self.profile.get_profile()
 
@@ -49,10 +49,10 @@ class Test_bag_profile(TestCase):
 
     def test_validate_serialization(self):
         # Test on unzipped Bag.
-        self.assertTrue(self.profile.validate_serialization(os.path.abspath("test-bar")))
+        self.assertTrue(self.profile.validate_serialization(os.path.abspath("fixtures/test-bar")))
         # Test on zipped Bag.
         self.profile = Profile(PROFILE_URL)
-        self.assertTrue(self.profile.validate_serialization(os.path.abspath("test-foo.zip")))
+        self.assertTrue(self.profile.validate_serialization(os.path.abspath("fixtures/test-foo.zip")))
 
 if __name__ == '__main__':
     main()

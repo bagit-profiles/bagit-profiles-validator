@@ -7,14 +7,14 @@
 
 A simple Python module for validating [BagIt](https://tools.ietf.org/html/rfc8493) profiles. See the [BagIt Profiles Specification (draft)](https://github.com/bagit-profiles/bagit-profiles/blob/master/README.md) for more information.
 
-This module is intended for use with [bagit](https://github.com/edsu/bagit) but does not extend it.
+This module is intended for use with [bagit-python](https://github.com/LibraryOfCongress/bagit-python) but does not extend it.
 
 ### Installation
 
 `bagit_profile.py` is a single-file Python module that you can drop into your project as needed or you can install globally with:
 
 1. `git clone https://github.com/bagit-profiles/bagit-profiles-validator.git`
-2. `cd bagit-profiles/python`
+2. `cd bagit-profiles-validator`
 3. `sudo python setup.py install`
 
 or:

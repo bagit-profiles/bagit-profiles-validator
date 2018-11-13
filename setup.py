@@ -6,8 +6,8 @@ description = \
     """
 setup(
       name = 'bagit_profile',
-      version = '1.1.1',
-      url = 'https://github.com/ruebot/bagit-profiles-validator',
+      version = '1.2.0',
+      url = 'https://github.com/bagit-profiles/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordan, Nick Ruest',
       author_email = 'mjordan@sfu.ca, ruestn@gmail.com',
@@ -26,5 +26,10 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Filesystems',
         'Topic :: Utilities',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
       ],
 )

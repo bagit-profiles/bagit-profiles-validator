@@ -12,20 +12,20 @@ Description
 
 A simple Python module for validating BagIt profiles. See the `BagIt
 Profiles Specification
-<https://github.com/ruebot/bagit-profiles/blob/master/README.md>`__
+<https://github.com/bagit-profiles/bagit-profiles/blob/master/README.md>`__
 for more information.
 
 This module is intended for use with
-`bagit <https://github.com/edsu/bagit>`__ but does not extend it.
+`bagit-python <https://github.com/LibraryOfCongress/bagit-python>`__ but does not extend it.
 
 Installation
 ~~~~~~~~~~~~
 
-bagit\_profile.py is a single-file python module that you can drop into
+``bagit_profile.py`` is a single-file python module that you can drop into
 your project as needed or you can install globally with:
 
-1. ``git clone https://github.com/ruebot/bagit-profiles-validator.git``
-2. ``cd bagit-profiles/python``
+1. ``git clone https://github.com/bagit-profiles/bagit-profiles-validator.git``
+2. ``cd bagit-profiles-validator``
 3. ``sudo python setup.py install``
 
 or:
@@ -41,7 +41,7 @@ Usage
     import bagit_profile
 
 Instantiate an existing Bag using
-`bagit <https://github.com/edsu/bagit>`__.
+`bagit <https://github.com/LibraryOfCongress/bagit-python>`__.
 ``python bag = bagit.Bag('mydir')``
 
 Instantiate a profile, supplying its URI.

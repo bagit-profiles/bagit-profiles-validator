@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 """
-A simple Python module for validating BagIt profiles. See https://github.com/ruebot/bagit-profiles
+A simple Python module for validating BagIt profiles. See
+https://github.com/bagit-profiles/bagit-profiles
 for more information.
 
 This module is intended for use with https://github.com/edsu/bagit but does not extend it.
