@@ -181,7 +181,7 @@ class Profile(object): # pylint: disable=useless-object-inheritance
                 if tag not in bag.info:
                     self._fail("%s: Required tag '%s' is not present in bag-info.txt." % (bag, tag))
             # If the tag is in bag-info.txt, check to see if the value is constrained.
-            if 'values' in config:
+            if 'values' in config and tag in bag.info:
                 if bag.info[tag] not in config['values']:
                     self._fail("%s: Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')." % (bag, tag, bag.info[tag]))
             # If the tag is nonrepeatable, make sure it only exists once. We do this by checking to see if the value for the key is a list.
