@@ -33,7 +33,9 @@ else:
 
 """
 
-from os.path import join, exists, isdir, isfile, split
+from os import listdir, walk
+from os.path import join, exists, isdir, isfile, split, relpath
+from fnmatch import fnmatch
 import sys
 import mimetypes
 import logging
@@ -52,6 +54,19 @@ class ProfileValidationError(Exception):
     def __str__(self):
         return repr(self.value)
 
+class ProfileValidationReport(object): # pylint: disable=useless-object-inheritance
+
+    def __init__(self):
+        self.errors = []
+
+    @property
+    def is_valid(self):
+        return not self.errors
+
+    def __str__(self):
+        if self.is_valid:
+            return 'VALID'
+        return "INVALID: %s" % "\n  ".join(["%s" % e for e in self.errors])
 
 # Define the Profile class.
 class Profile(object): # pylint: disable=useless-object-inheritance
@@ -66,6 +81,8 @@ class Profile(object): # pylint: disable=useless-object-inheritance
             else:
                 profile = json.loads(profile)
         self.validate_bagit_profile(profile)
+        # Report of the errors in the last run of validate
+        self.report = None
         self.profile = profile
 
     def _fail(self, msg):
@@ -94,38 +111,22 @@ class Profile(object): # pylint: disable=useless-object-inheritance
     # which we've already called. 'Serialization' and 'Accept-Serialization'
     #  are validated in validate_serialization().
     def validate(self, bag):
-        valid = True
-        try:
-            self.validate_bag_info(bag)
-        except ProfileValidationError as e:
-            self._warn("Error in bag-info.txt: %s" % e.value)
-            valid = False
-        try:
-            self.validate_manifests_required(bag)
-        except ProfileValidationError as e:
-            self._warn("Required manifests not found: %s" % e.value)
-            valid = False
-        try:
-            self.validate_tag_manifests_required(bag)
-        except ProfileValidationError as e:
-            self._warn("Required tag manifests not found: %s" % e.value)
-            valid = False
-        try:
-            self.validate_tag_files_required(bag)
-        except ProfileValidationError as e:
-            self._warn("Required tag files not found: %s" % e.value)
-            valid = False
-        try:
-            self.validate_allow_fetch(bag)
-        except ProfileValidationError as e:
-            self._warn("fetch.txt is present but is not allowed: %s" % e.value)
-            valid = False
-        try:
-            self.validate_accept_bagit_version(bag)
-        except ProfileValidationError as e:
-            self._warn("Required BagIt version not found: %s" % e.value)
-            valid = False
-        return valid
+        self.report = ProfileValidationReport()
+        for (fn, msg) in [
+            (self.validate_bag_info, 'Error in bag-info.txt'),
+            (self.validate_manifests_required, 'Required manifests not found'),
+            (self.validate_tag_manifests_required, 'Required tag manifests not found'),
+            (self.validate_tag_files_required, 'Required tag files not found'),
+            (self.validate_tag_files_allowed, 'Tag files not allowed'),
+            (self.validate_allow_fetch, 'fetch.txt is present but is not allowed'),
+            (self.validate_accept_bagit_version, 'Required BagIt version not found'),
+        ]:
+            try:
+                fn(bag)
+            except ProfileValidationError as e:
+                #  self._warn("%s: %s" % (msg, e))
+                self.report.errors.append(e)
+        return self.report.is_valid
 
     def validate_bagit_profile(self, profile):
         """
@@ -212,6 +213,24 @@ class Profile(object): # pylint: disable=useless-object-inheritance
                 self._fail("%s: Required tag manifest type '%s' is not present in Bag." % (bag, tag_manifest_type))
         return True
 
+    def validate_tag_files_allowed(self, bag):
+        """
+        Validate the ``Tag-Files-Allowed`` tag.
+
+        """
+        allowed = self.profile['Tag-Files-Allowed'] if 'Tag-Files-Allowed' in self.profile else ['*']
+        required = self.profile['Tag-Files-Required'] if 'Tag-Files-Required' in self.profile else []
+
+        # For each member of 'Tag-Files-Required' ensure it is also in 'Tag-Files-Allowed'.
+        required_but_not_allowed = [f for f in required if not fnmatch_any(f, allowed)]
+        if required_but_not_allowed:
+            self._fail("%s: Required tag files '%s' not listed in Tag-Files-Allowed" % (bag, required_but_not_allowed))
+
+        # For each tag file in the bag base directory, ensure it is also in 'Tag-Files-Allowed'.
+        for tag_file in find_tag_files(bag.path):
+            if not fnmatch_any(tag_file, allowed):
+                self._fail("%s: Existing tag file '%s' is not listed in Tag-Files-Allowed." % (bag, tag_file))
+
     # For each member of self.profile['Tag-Files-Required'], throw an exception if
     # the path does not exist.
     def validate_tag_files_required(self, bag):
@@ -265,6 +284,24 @@ class Profile(object): # pylint: disable=useless-object-inheritance
         # If we have passed the serialization tests, return True.
         return True
 
+# Return true if any of the pattern fnmatches a file path
+def fnmatch_any(f, pats):
+    for pat in pats:
+        if fnmatch(f, pat):
+            return True
+    return False
+
+# Find tag files
+def find_tag_files(bag_dir):
+    for root, _, basenames in walk(bag_dir):
+        reldir = relpath(root, bag_dir)
+        for basename in basenames:
+            if fnmatch(reldir, 'data*') or (reldir == '.' and fnmatch_any(basename,
+                ['manifest-*.txt', 'bag-info.txt', 'tagmanifest-*.txt', 'bagit.txt', 'fetch.txt'])):
+                continue
+            fpath = join(root, basename)
+            if isfile(fpath):
+                yield fpath
 
 def _main():
     # Command-line version.

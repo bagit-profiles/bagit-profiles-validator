@@ -1,0 +1,16 @@
+{
+   "BagIt-Profile-Info": {
+      "BagIt-Profile-Identifier": "TEST",
+      "Source-Organization": "bagit-profiles.py",
+      "Contact-Name": "John Doe",
+      "Contact-Email": "johndoe@example.org",
+      "External-Description": "Test Profile",
+      "Version": "1.0"
+   },
+   "Bag-Info": {},
+   "Manifests-Required": ["sha256", "sha512"],
+   "Tag-Manifests-Required": ["sha256", "sha512"],
+   "Tag-Files-Required": [],
+   "Allow-Fetch.txt": true,
+   "Accept-BagIt-Version": ["0.97"]
+}

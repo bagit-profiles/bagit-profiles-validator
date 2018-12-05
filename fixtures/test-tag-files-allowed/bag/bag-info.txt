@@ -1,0 +1,4 @@
+BagIt-Profile-Identifier: TEST
+Bag-Software-Agent: bagit.py v1.7.0 <https://github.com/LibraryOfCongress/bagit-python>
+Bagging-Date: 2018-11-19
+Payload-Oxum: 0.3

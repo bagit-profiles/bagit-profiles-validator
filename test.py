@@ -1,12 +1,56 @@
 import json
 import os
 import sys
+from os.path import isdir, join
 from unittest import TestCase, main
+from shutil import rmtree, copytree
 
 import bagit
-from bagit_profile import Profile
+from bagit_profile import Profile, find_tag_files
 
 PROFILE_URL = 'https://raw.github.com/bagit-profiles/bagit-profiles/master/bagProfileBar.json'
+
+# pylint: disable=multiple-statements
+
+class TagFilesAllowedTest(TestCase):
+
+    def tearDown(self):
+        if isdir(self.bagdir):
+            rmtree(self.bagdir)
+
+    def setUp(self):
+        self.bagdir = join('/tmp', 'bagit-profile-test-bagdir')
+        if isdir(self.bagdir):
+            rmtree(self.bagdir)
+        copytree('./fixtures/test-tag-files-allowed/bag', self.bagdir)
+        with open(join('./fixtures/test-tag-files-allowed/profile.json'), 'r') as f:
+            self.profile_dict = json.loads(f.read())
+
+    def test_not_given(self):
+        profile = Profile('TEST', self.profile_dict)
+        bag = bagit.Bag(self.bagdir)
+        result = profile.validate(bag)
+        self.assertTrue(result)
+
+    def test_required_not_allowed(self):
+        self.profile_dict["Tag-Files-Allowed"] = []
+        self.profile_dict["Tag-Files-Required"] = ['tag-foo']
+        with open(join(self.bagdir, 'tag-foo'), 'w'): pass
+        profile = Profile('TEST', self.profile_dict)
+        result = profile.validate(bagit.Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+        self.assertTrue('Required tag files' in profile.report.errors[0].value)
+
+    def test_existing_not_allowed(self):
+        self.profile_dict["Tag-Files-Allowed"] = []
+        with open(join(self.bagdir, 'tag-foo'), 'w'): pass
+        profile = Profile('TEST', self.profile_dict)
+        result = profile.validate(bagit.Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+        self.assertTrue("Existing tag file" in profile.report.errors[0].value)
+
 
 class BagitProfileConstructorTest(TestCase):
 
@@ -32,6 +76,11 @@ class Test_bag_profile(TestCase):
     def test_validate_bagit_profile_info(self):
         self.assertTrue(self.profile.validate_bagit_profile_info(self.retrieved_profile))
 
+    def test_report_after_validate(self):
+        self.assertIsNone(self.profile.report)
+        self.profile.validate(self.bag)
+        self.assertTrue(self.profile.report.is_valid)
+
     def test_validate(self):
         self.assertTrue(self.profile.validate(self.bag))
 
@@ -53,6 +102,10 @@ class Test_bag_profile(TestCase):
         # Test on zipped Bag.
         self.profile = Profile(PROFILE_URL)
         self.assertTrue(self.profile.validate_serialization(os.path.abspath("fixtures/test-foo.zip")))
+
+    def test_find_tag_files(self):
+        expect = [join(os.getcwd(), 'fixtures/test-bar', f) for f in ['DPN/dpnFirstNode.txt', 'DPN/dpnRegistry']]
+        self.assertEqual(sorted(find_tag_files(self.bag.path)), expect)
 
 if __name__ == '__main__':
     main()
