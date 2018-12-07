@@ -63,8 +63,9 @@ class BagitProfileConstructorTest(TestCase):
         profile_url = Profile(PROFILE_URL)
         profile_dict = Profile(PROFILE_URL, profile=self.profile_dict)
         profile_str = Profile(PROFILE_URL, profile=self.profile_str)
-        self.assertEqual(json.dumps(profile_url.profile), json.dumps(profile_dict.profile))
-        self.assertEqual(json.dumps(profile_str.profile), json.dumps(profile_dict.profile))
+        self.maxDiff = None
+        self.assertEqual(json.dumps(profile_str.profile), json.dumps(profile_dict.profile), 'Loaded from string')
+        self.assertEqual(json.dumps(profile_url.profile), json.dumps(profile_dict.profile), 'Loaded from URL')
 
 class Test_bag_profile(TestCase):
 

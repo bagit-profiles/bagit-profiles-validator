@@ -228,6 +228,7 @@ class Profile(object): # pylint: disable=useless-object-inheritance
 
         # For each tag file in the bag base directory, ensure it is also in 'Tag-Files-Allowed'.
         for tag_file in find_tag_files(bag.path):
+            tag_file = relpath(tag_file, bag.path)
             if not fnmatch_any(tag_file, allowed):
                 self._fail("%s: Existing tag file '%s' is not listed in Tag-Files-Allowed." % (bag, tag_file))
 
