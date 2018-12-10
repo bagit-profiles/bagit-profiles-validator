@@ -130,14 +130,20 @@ class Profile(object): # pylint: disable=useless-object-inheritance
 
     def validate_bagit_profile(self, profile):
         """
-        Validate the profile itself.
+        Set default values for unspecified tags and validate the profile itself.
         """
+        if 'Serialization' not in profile:
+            profile['Serialization'] = 'optional'
+        if 'Allow-Fetch.txt' not in profile:
+            profile['Allow-Fetch.txt'] = True
         self.validate_bagit_profile_info(profile)
         self.validate_bagit_profile_accept_bagit_versions(profile)
 
     # Check self.profile['bag-profile-info'] to see if "Source-Organization",
     # "External-Description", "Version" and "BagIt-Profile-Identifier" are present.
     def validate_bagit_profile_info(self, profile):
+        if 'BagIt-Profile-Info' not in profile:
+            self._fail("%s: Required 'BagIt-Profile-Info' dict is missing." % profile)
         if 'Source-Organization' not in profile['BagIt-Profile-Info']:
             self._fail("%s: Required 'Source-Organization' tag is not in 'BagIt-Profile-Info'." % profile)
         if 'Version' not in profile['BagIt-Profile-Info']:
