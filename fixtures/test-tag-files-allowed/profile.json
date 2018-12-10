@@ -1,6 +1,7 @@
 {
    "BagIt-Profile-Info": {
       "BagIt-Profile-Identifier": "TEST",
+      "BagIt-Profile-Version": "1.2.0",
       "Source-Organization": "bagit-profiles.py",
       "Contact-Name": "John Doe",
       "Contact-Email": "johndoe@example.org",

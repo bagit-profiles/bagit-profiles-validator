@@ -112,16 +112,19 @@ class Profile(object): # pylint: disable=useless-object-inheritance
     #  are validated in validate_serialization().
     def validate(self, bag):
         self.report = ProfileValidationReport()
-        for (fn, msg) in [
-            (self.validate_bag_info, 'Error in bag-info.txt'),
-            (self.validate_manifests_required, 'Required manifests not found'),
-            (self.validate_tag_manifests_required, 'Required tag manifests not found'),
-            (self.validate_tag_files_required, 'Required tag files not found'),
-            (self.validate_tag_files_allowed, 'Tag files not allowed'),
-            (self.validate_allow_fetch, 'fetch.txt is present but is not allowed'),
-            (self.validate_accept_bagit_version, 'Required BagIt version not found'),
+        for (fn, msg, min_version) in [
+            (self.validate_bag_info, 'Error in bag-info.txt', None),
+            (self.validate_manifests_required, 'Required manifests not found', None),
+            (self.validate_tag_manifests_required, 'Required tag manifests not found', None),
+            (self.validate_tag_files_required, 'Required tag files not found', None),
+            (self.validate_allow_fetch, 'fetch.txt is present but is not allowed', None),
+            (self.validate_accept_bagit_version, 'Required BagIt version not found', None),
+            (self.validate_tag_files_allowed, 'Tag files not allowed', (1, 2, 0)),
         ]:
             try:
+                if min_version and self.profile_version_info < min_version:
+                    logging.info("Skipping %s introduced in version %s (version validated: %s)", fn, min_version, self.profile_version_info)
+                    continue
                 fn(bag)
             except ProfileValidationError as e:
                 #  self._warn("%s: %s" % (msg, e))
@@ -136,6 +139,11 @@ class Profile(object): # pylint: disable=useless-object-inheritance
             profile['Serialization'] = 'optional'
         if 'Allow-Fetch.txt' not in profile:
             profile['Allow-Fetch.txt'] = True
+        if 'BagIt-Profile-Info' in profile and 'BagIt-Profile-Version' in profile['BagIt-Profile-Info']:
+            profile_version = profile['BagIt-Profile-Info']['BagIt-Profile-Version']
+        else:
+            profile_version = '1.1.0'
+        self.profile_version_info = tuple(int(i) for i in profile_version.split("."))
         self.validate_bagit_profile_info(profile)
         self.validate_bagit_profile_accept_bagit_versions(profile)
 

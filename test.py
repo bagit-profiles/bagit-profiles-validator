@@ -5,7 +5,7 @@ from os.path import isdir, join
 from unittest import TestCase, main
 from shutil import rmtree, copytree
 
-import bagit
+from bagit import Bag
 from bagit_profile import Profile, find_tag_files
 
 PROFILE_URL = 'https://raw.github.com/bagit-profiles/bagit-profiles/master/bagProfileBar.json'
@@ -28,7 +28,7 @@ class TagFilesAllowedTest(TestCase):
 
     def test_not_given(self):
         profile = Profile('TEST', self.profile_dict)
-        bag = bagit.Bag(self.bagdir)
+        bag = Bag(self.bagdir)
         result = profile.validate(bag)
         self.assertTrue(result)
 
@@ -37,7 +37,7 @@ class TagFilesAllowedTest(TestCase):
         self.profile_dict["Tag-Files-Required"] = ['tag-foo']
         with open(join(self.bagdir, 'tag-foo'), 'w'): pass
         profile = Profile('TEST', self.profile_dict)
-        result = profile.validate(bagit.Bag(self.bagdir))
+        result = profile.validate(Bag(self.bagdir))
         self.assertFalse(result)
         self.assertEqual(len(profile.report.errors), 1)
         self.assertTrue('Required tag files' in profile.report.errors[0].value)
@@ -46,7 +46,7 @@ class TagFilesAllowedTest(TestCase):
         self.profile_dict["Tag-Files-Allowed"] = []
         with open(join(self.bagdir, 'tag-foo'), 'w'): pass
         profile = Profile('TEST', self.profile_dict)
-        result = profile.validate(bagit.Bag(self.bagdir))
+        result = profile.validate(Bag(self.bagdir))
         self.assertFalse(result)
         self.assertEqual(len(profile.report.errors), 1)
         self.assertTrue("Existing tag file" in profile.report.errors[0].value)
@@ -63,14 +63,20 @@ class BagitProfileConstructorTest(TestCase):
         profile_url = Profile(PROFILE_URL)
         profile_dict = Profile(PROFILE_URL, profile=self.profile_dict)
         profile_str = Profile(PROFILE_URL, profile=self.profile_str)
-        self.maxDiff = None
         self.assertEqual(json.dumps(profile_str.profile), json.dumps(profile_dict.profile), 'Loaded from string')
         self.assertEqual(json.dumps(profile_url.profile), json.dumps(profile_dict.profile), 'Loaded from URL')
+
+    def testVersionInfo(self):
+        profile = Profile(PROFILE_URL, profile=self.profile_dict)
+        self.assertEqual(profile.profile_version_info, (1, 2, 0), 'Bundled: 1.2.0')
+        del(self.profile_dict['BagIt-Profile-Info']['BagIt-Profile-Version'])
+        profile = Profile(PROFILE_URL, profile=self.profile_dict)
+        self.assertEqual(profile.profile_version_info, (1, 1, 0), 'Default profile version 1.1.0')
 
 class Test_bag_profile(TestCase):
 
     def setUp(self):
-        self.bag = bagit.Bag('fixtures/test-bar')
+        self.bag = Bag('fixtures/test-bar')
         self.profile = Profile(PROFILE_URL)
         self.retrieved_profile = self.profile.get_profile()
 
