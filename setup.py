@@ -6,7 +6,7 @@ description = \
     """
 setup(
       name = 'bagit_profile',
-      version = '1.2.0',
+      version = '1.3.0',
       url = 'https://github.com/bagit-profiles/bagit-profiles-validator',
       install_requires=['bagit', 'requests'],
       author = 'Mark Jordan, Nick Ruest',
