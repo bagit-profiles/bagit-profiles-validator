@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 
 """
 A simple Python module for validating BagIt profiles. See
@@ -318,62 +320,75 @@ def find_tag_files(bag_dir):
             if isfile(fpath):
                 yield fpath
 
+def _configure_logging(args):
+    import time
+    log_format = "%(asctime)s - %(levelname)s - %(message)s"
+    if args.quiet:
+        args.loglevel = 'ERROR'
+    level = logging.getLevelName(args.loglevel)
+    if args.no_logfile:
+        logging.basicConfig(level=level, format=log_format)
+    else:
+        if args.logdir:
+            filename = join(args.log + '/logs', 'BagitProfile_' + time.strftime('%y_%m_%d') + '.log')
+        else:
+            filename = 'BagitProfile%s.log' % time.strftime('%y_%m_%d')
+        logging.basicConfig(filename=filename, level=level, format=log_format)
+
 def _main():
     # Command-line version.
-    import time
     import bagit
-    import optparse # pylint: disable=deprecated-module
+    from argparse import ArgumentParser
+    from pkg_resources import get_distribution
 
-    class BagitProfileOptionParser(optparse.OptionParser):
-        def __init__(self, *args, **opts):
-            optparse.OptionParser.__init__(self, *args, **opts)
+    parser = ArgumentParser(description="Validate BagIt bags against BagIt profiles")
 
-    def _make_opt_parser():
-        parser = BagitProfileOptionParser(usage='usage: %prog [options] profile_uri bag_dir')
-        parser.add_option('--quiet', action='store_true', dest='quiet')
-        parser.add_option('--log', action='store', dest='log')
-        return parser
+    parser.add_argument('--version', action='version', version='%(prog)s, v' + get_distribution('bagit_profile').version)
+    parser.add_argument('--quiet', action='store_true', help="Suppress all output except errors. Default: %(default)s")
+    parser.add_argument('--log', dest='logdir', help="Log directory. Default: %(default)s")
+    parser.add_argument('--no-logfile', action='store_true', help="Do not log to a log file. Default: %(default)s")
+    parser.add_argument('--loglevel', default='INFO', choices=('DEBUG', 'INFO', 'ERROR'), help="Log level. Default: %(default)s")
+    parser.add_argument('--file', help="Load profile from FILE, not by URL. Default: %(default)s.")
+    parser.add_argument('--report', action='store_true', help="Print validation report. Default: %(default)s")
+    parser.add_argument('--skip', action='append', default=[], help="Skip validation steps. Default: %(default)s", choices=('serialization', 'profile'))
+    parser.add_argument('profile_url', nargs=1)
+    parser.add_argument('bagit_path', nargs=1)
 
-    def _configure_logging(opts):
-        log_format = "%(asctime)s - %(levelname)s - %(message)s"
-        if opts.quiet:
-            level = logging.ERROR
-        else:
-            level = logging.INFO
-        if opts.log:
-            logFile = join(opts.log + '/logs', 'BagitProfile_' + time.strftime('%y_%m_%d') + '.log')
-            logging.basicConfig(filename=logFile, level=level, format=log_format)
-        if not opts.log:
-            logging.basicConfig(filename='BagitProfile' + time.strftime('%y_%m_%d') + '.log', level=level, format=log_format)
-        else:
-            logging.basicConfig(level=level, format=log_format)
+    args = parser.parse_args()
 
-    opt_parser = _make_opt_parser()
-    opts, args = opt_parser.parse_args()
-    _configure_logging(opts)
+    profile_url = args.profile_url[0]
+    bagit_path = args.bagit_path[0]
 
-    rc = 0
+    _configure_logging(args)
 
     # Instantiate a profile, supplying its URI.
-    profile = Profile(args[0])
+    if args.file:
+        with open(args.file, 'r') as local_file:
+            profile = Profile(profile_url, profile=local_file.read())
+    else:
+        profile = Profile(profile_url)
+
     # Instantiate an existing Bag.
-    bag = bagit.Bag(args[1])
+    bag = bagit.Bag(bagit_path)  # pylint: disable=no-member
 
     # Validate 'Serialization' and 'Accept-Serialization', then perform general validation.
-    if profile.validate_serialization(args[1]):
-        print("Serialization validates")
-    else:
-        print("Serialization does not validate")
-        rc = 1
-        sys.exit(rc)
+    if 'serialization' not in args.skip:
+        if profile.validate_serialization(bagit_path):
+            print(u"✓ Serialization validates")
+        else:
+            print(u"✗ Serialization does not validate")
+            sys.exit(1)
 
     # Validate the rest of the profile.
-    if profile.validate(bag):
-        print("Valdiates")
-    else:
-        print("Does not validate")
+    if 'profile' not in args.skip:
+        if profile.validate(bag):
+            print(u"✓ Validates against %s" % profile_url)
+        else:
+            print(u"✗ Does not validate against %s" % profile_url)
+            if args.report:
+                print(profile.report)
+            sys.exit(2)
 
-    sys.exit(rc)
 
 if __name__ == '__main__':
     _main()
