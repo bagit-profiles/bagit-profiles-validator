@@ -1,11 +1,11 @@
 # Bagit Profile (validator)
 
 [![PyPI version](https://img.shields.io/pypi/v/bagit_profile.svg)](https://pypi.org/project/bagit_profile)
-[![Build Status](https://circleci.com/gh/bagit-profiles/bagit-profiles-validator.svg?style=svg)](https://circleci.com/gh/bagit-profiles/bagit-profiles-validator)
+[![Build Status](https://travis-ci.org/bagit-profiles/bagit-profiles-validator.svg?branch=master)](https://travis-ci.org/bagit-profiles/bagit-profiles-validator)
 
 ### Description
 
-A simple Python module for validating [BagIt](https://tools.ietf.org/html/rfc8493) profiles. See the [BagIt Profiles Specification (draft)](https://github.com/bagit-profiles/bagit-profiles/blob/master/README.md) for more information.
+A simple Python module for validating [BagIt](https://tools.ietf.org/html/rfc8493) Profiles. See the [BagIt Profiles Specification (draft)](https://github.com/bagit-profiles/bagit-profiles/blob/master/README.md) for more information.
 
 This module is intended for use with [bagit-python](https://github.com/LibraryOfCongress/bagit-python) but does not extend it.
 

@@ -2,50 +2,54 @@ import json
 import os
 import sys
 from os.path import isdir, join
+from shutil import copytree, rmtree
 from unittest import TestCase, main
-from shutil import rmtree, copytree
 
 from bagit import Bag
 from bagit_profile import Profile, find_tag_files
 
-PROFILE_URL = 'https://raw.github.com/bagit-profiles/bagit-profiles/master/bagProfileBar.json'
+PROFILE_URL = (
+    "https://raw.github.com/bagit-profiles/bagit-profiles/master/bagProfileBar.json"
+)
 
 # pylint: disable=multiple-statements
 
-class TagFilesAllowedTest(TestCase):
 
+class TagFilesAllowedTest(TestCase):
     def tearDown(self):
         if isdir(self.bagdir):
             rmtree(self.bagdir)
 
     def setUp(self):
-        self.bagdir = join('/tmp', 'bagit-profile-test-bagdir')
+        self.bagdir = join("/tmp", "bagit-profile-test-bagdir")
         if isdir(self.bagdir):
             rmtree(self.bagdir)
-        copytree('./fixtures/test-tag-files-allowed/bag', self.bagdir)
-        with open(join('./fixtures/test-tag-files-allowed/profile.json'), 'r') as f:
+        copytree("./fixtures/test-tag-files-allowed/bag", self.bagdir)
+        with open(join("./fixtures/test-tag-files-allowed/profile.json"), "r") as f:
             self.profile_dict = json.loads(f.read())
 
     def test_not_given(self):
-        profile = Profile('TEST', self.profile_dict)
+        profile = Profile("TEST", self.profile_dict)
         bag = Bag(self.bagdir)
         result = profile.validate(bag)
         self.assertTrue(result)
 
     def test_required_not_allowed(self):
         self.profile_dict["Tag-Files-Allowed"] = []
-        self.profile_dict["Tag-Files-Required"] = ['tag-foo']
-        with open(join(self.bagdir, 'tag-foo'), 'w'): pass
-        profile = Profile('TEST', self.profile_dict)
+        self.profile_dict["Tag-Files-Required"] = ["tag-foo"]
+        with open(join(self.bagdir, "tag-foo"), "w"):
+            pass
+        profile = Profile("TEST", self.profile_dict)
         result = profile.validate(Bag(self.bagdir))
         self.assertFalse(result)
         self.assertEqual(len(profile.report.errors), 1)
-        self.assertTrue('Required tag files' in profile.report.errors[0].value)
+        self.assertTrue("Required tag files" in profile.report.errors[0].value)
 
     def test_existing_not_allowed(self):
         self.profile_dict["Tag-Files-Allowed"] = []
-        with open(join(self.bagdir, 'tag-foo'), 'w'): pass
-        profile = Profile('TEST', self.profile_dict)
+        with open(join(self.bagdir, "tag-foo"), "w"):
+            pass
+        profile = Profile("TEST", self.profile_dict)
         result = profile.validate(Bag(self.bagdir))
         self.assertFalse(result)
         self.assertEqual(len(profile.report.errors), 1)
@@ -53,35 +57,48 @@ class TagFilesAllowedTest(TestCase):
 
 
 class BagitProfileConstructorTest(TestCase):
-
     def setUp(self):
-        with open('./fixtures/bagProfileBar.json', 'rb') as f:
-            self.profile_str = f.read().decode('utf-8') if sys.version_info > (3,) else f.read()
+        with open("./fixtures/bagProfileBar.json", "rb") as f:
+            self.profile_str = (
+                f.read().decode("utf-8") if sys.version_info > (3,) else f.read()
+            )
         self.profile_dict = json.loads(self.profile_str)
 
     def test_profile_kwarg(self):
         profile_url = Profile(PROFILE_URL)
         profile_dict = Profile(PROFILE_URL, profile=self.profile_dict)
         profile_str = Profile(PROFILE_URL, profile=self.profile_str)
-        self.assertEqual(json.dumps(profile_str.profile), json.dumps(profile_dict.profile), 'Loaded from string')
-        self.assertEqual(json.dumps(profile_url.profile), json.dumps(profile_dict.profile), 'Loaded from URL')
+        self.assertEqual(
+            json.dumps(profile_str.profile),
+            json.dumps(profile_dict.profile),
+            "Loaded from string",
+        )
+        self.assertEqual(
+            json.dumps(profile_url.profile),
+            json.dumps(profile_dict.profile),
+            "Loaded from URL",
+        )
 
     def testVersionInfo(self):
         profile = Profile(PROFILE_URL, profile=self.profile_dict)
-        self.assertEqual(profile.profile_version_info, (1, 2, 0), 'Bundled: 1.2.0')
-        del(self.profile_dict['BagIt-Profile-Info']['BagIt-Profile-Version'])
+        self.assertEqual(profile.profile_version_info, (1, 2, 0), "Bundled: 1.2.0")
+        del self.profile_dict["BagIt-Profile-Info"]["BagIt-Profile-Version"]
         profile = Profile(PROFILE_URL, profile=self.profile_dict)
-        self.assertEqual(profile.profile_version_info, (1, 1, 0), 'Default profile version 1.1.0')
+        self.assertEqual(
+            profile.profile_version_info, (1, 1, 0), "Default profile version 1.1.0"
+        )
+
 
 class Test_bag_profile(TestCase):
-
     def setUp(self):
-        self.bag = Bag('fixtures/test-bar')
+        self.bag = Bag("fixtures/test-bar")
         self.profile = Profile(PROFILE_URL)
         self.retrieved_profile = self.profile.get_profile()
 
     def test_validate_bagit_profile_info(self):
-        self.assertTrue(self.profile.validate_bagit_profile_info(self.retrieved_profile))
+        self.assertTrue(
+            self.profile.validate_bagit_profile_info(self.retrieved_profile)
+        )
 
     def test_report_after_validate(self):
         self.assertIsNone(self.profile.report)
@@ -105,14 +122,24 @@ class Test_bag_profile(TestCase):
 
     def test_validate_serialization(self):
         # Test on unzipped Bag.
-        self.assertTrue(self.profile.validate_serialization(os.path.abspath("fixtures/test-bar")))
+        self.assertTrue(
+            self.profile.validate_serialization(os.path.abspath("fixtures/test-bar"))
+        )
         # Test on zipped Bag.
         self.profile = Profile(PROFILE_URL)
-        self.assertTrue(self.profile.validate_serialization(os.path.abspath("fixtures/test-foo.zip")))
+        self.assertTrue(
+            self.profile.validate_serialization(
+                os.path.abspath("fixtures/test-foo.zip")
+            )
+        )
 
     def test_find_tag_files(self):
-        expect = [join(os.getcwd(), 'fixtures/test-bar', f) for f in ['DPN/dpnFirstNode.txt', 'DPN/dpnRegistry']]
+        expect = [
+            join(os.getcwd(), "fixtures/test-bar", f)
+            for f in ["DPN/dpnFirstNode.txt", "DPN/dpnRegistry"]
+        ]
         self.assertEqual(sorted(find_tag_files(self.bag.path)), expect)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
