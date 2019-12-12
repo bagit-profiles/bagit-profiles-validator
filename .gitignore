@@ -9,3 +9,4 @@ __pycache__
 bagit_profile.py.bak
 module_test.py.bak
 .eggs
+.coverage
