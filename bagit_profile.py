@@ -41,11 +41,13 @@ import mimetypes
 import sys
 from fnmatch import fnmatch
 from os import listdir, walk
-from os.path import exists, isdir, isfile, join, relpath, split
+from os.path import basename, exists, isdir, isfile, join, relpath, split
 
 if sys.version_info > (3,):
+    basestring = str
     from urllib.request import urlopen  # pylint: no-name-in-module
 else:
+    basestring = basestring
     from urllib import urlopen  # pylint: disable=no-name-in-module
 
 # Define an exceptin class for use within this module.
@@ -124,6 +126,8 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
                 "Required tag manifests not found",
                 None,
             ),
+            (self.validate_payload_manifests_allowed, "Disallowed payload manifests present", (1, 3, 0)),
+            (self.validate_tag_manifests_allowed, "Disallowed tag manifests present", (1, 3, 0)),
             (self.validate_tag_files_required, "Required tag files not found", None),
             (
                 self.validate_allow_fetch,
@@ -170,6 +174,7 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
         self.profile_version_info = tuple(int(i) for i in profile_version.split("."))
         self.validate_bagit_profile_info(profile)
         self.validate_bagit_profile_accept_bagit_versions(profile)
+        self.validate_bagit_profile_bag_info(profile)
 
     # Check self.profile['bag-profile-info'] to see if "Source-Organization",
     # "External-Description", "Version" and "BagIt-Profile-Identifier" are present.
@@ -200,16 +205,21 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
         if "Accept-BagIt-Version" in profile:
             for version_number in profile["Accept-BagIt-Version"]:
                 # pylint: disable=undefined-variable
-                if (
-                    sys.version_info < (3, 0)
-                    and not isinstance(version_number, basestring)
-                ) or (
-                    sys.version_info >= (3, 0) and not isinstance(version_number, str)
-                ):
+                if not isinstance(version_number, basestring):
                     raise ProfileValidationError(
-                        'Version number "%s" in "Accecpt-BagIt-Version" is not a string!'
+                        'Version number "%s" in "Accept-BagIt-Version" is not a string!'
                         % version_number
                     )
+        return True
+
+    def validate_bagit_profile_bag_info(self, profile):
+        if 'Bag-Info' in profile:
+            for tag in profile['Bag-Info']:
+                config = profile['Bag-Info'][tag]
+                if self.profile_version_info >= (1, 3, 0) and \
+                        'description' in config and not isinstance(config['description'], basestring):
+                    self._fail("%s: Profile Bag-Info '%s' tag 'description' property, when present, must be a string." %
+                               (profile, tag))
         return True
 
     # Validate tags in self.profile['Bag-Info'].
@@ -285,6 +295,46 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
                     "%s: Required tag manifest type '%s' is not present in Bag."
                     % (bag, tag_manifest_type)
                 )
+        return True
+
+    @staticmethod
+    def manifest_algorithms(manifest_files):
+        for filepath in manifest_files:
+            filename = basename(filepath)
+            if filename.startswith("tagmanifest-"):
+                prefix = "tagmanifest-"
+            else:
+                prefix = "manifest-"
+            algorithm = filename.replace(prefix, "").replace(".txt", "")
+            yield algorithm
+
+    def validate_tag_manifests_allowed(self, bag):
+        return self._validate_allowed_manifests(bag, manifest_type="tag",
+                                                manifests_present=self.manifest_algorithms(bag.tagmanifest_files()),
+                                                allowed_attribute="Tag-Manifests-Allowed",
+                                                required_attribute="Tag-Manifests-Required")
+
+    def validate_payload_manifests_allowed(self, bag):
+        return self._validate_allowed_manifests(bag, manifest_type="payload",
+                                                manifests_present=self.manifest_algorithms(bag.manifest_files()),
+                                                allowed_attribute="Manifests-Allowed",
+                                                required_attribute="Manifests-Required")
+
+    def _validate_allowed_manifests(self, bag, manifest_type=None, manifests_present=None,
+                                    allowed_attribute=None, required_attribute=None):
+        if allowed_attribute not in self.profile:
+            return True
+        allowed = self.profile[allowed_attribute]
+        required = self.profile[required_attribute] if required_attribute in self.profile else []
+
+        required_but_not_allowed = [alg for alg in required if alg not in allowed]
+        if required_but_not_allowed:
+            self._fail("%s: Required %s manifest type(s) %s not allowed by %s" %
+                       (bag, manifest_type, [str(a) for a in required_but_not_allowed], allowed_attribute))
+        present_but_not_allowed = [alg for alg in manifests_present if alg not in allowed]
+        if present_but_not_allowed:
+            self._fail("%s: Unexpected %s manifest type(s) '%s' present, but not allowed by %s" %
+                       (bag, manifest_type, [str(a) for a in present_but_not_allowed], allowed_attribute))
         return True
 
     def validate_tag_files_allowed(self, bag):
