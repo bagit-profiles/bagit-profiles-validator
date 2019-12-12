@@ -19,4 +19,4 @@ install:
   - pip install codecov
 
 script:
-  - coverage run tests.py
+  - coverage run test.py
