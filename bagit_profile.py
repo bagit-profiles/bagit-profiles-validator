@@ -44,8 +44,10 @@ from os import listdir, walk
 from os.path import basename, exists, isdir, isfile, join, relpath, split
 
 if sys.version_info > (3,):
+    basestring = str
     from urllib.request import urlopen  # pylint: no-name-in-module
 else:
+    basestring = basestring
     from urllib import urlopen  # pylint: disable=no-name-in-module
 
 # Define an exceptin class for use within this module.
@@ -203,14 +205,9 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
         if "Accept-BagIt-Version" in profile:
             for version_number in profile["Accept-BagIt-Version"]:
                 # pylint: disable=undefined-variable
-                if (
-                    sys.version_info < (3, 0)
-                    and not isinstance(version_number, basestring)
-                ) or (
-                    sys.version_info >= (3, 0) and not isinstance(version_number, str)
-                ):
+                if not isinstance(version_number, basestring):
                     raise ProfileValidationError(
-                        'Version number "%s" in "Accecpt-BagIt-Version" is not a string!'
+                        'Version number "%s" in "Accept-BagIt-Version" is not a string!'
                         % version_number
                     )
         return True
