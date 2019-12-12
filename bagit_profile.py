@@ -172,6 +172,7 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
         self.profile_version_info = tuple(int(i) for i in profile_version.split("."))
         self.validate_bagit_profile_info(profile)
         self.validate_bagit_profile_accept_bagit_versions(profile)
+        self.validate_bagit_profile_bag_info(profile)
 
     # Check self.profile['bag-profile-info'] to see if "Source-Organization",
     # "External-Description", "Version" and "BagIt-Profile-Identifier" are present.
@@ -212,6 +213,16 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
                         'Version number "%s" in "Accecpt-BagIt-Version" is not a string!'
                         % version_number
                     )
+        return True
+
+    def validate_bagit_profile_bag_info(self, profile):
+        if 'Bag-Info' in profile:
+            for tag in profile['Bag-Info']:
+                config = profile['Bag-Info'][tag]
+                if self.profile_version_info >= (1, 3, 0) and \
+                        'description' in config and not isinstance(config['description'], basestring):
+                    self._fail("%s: Profile Bag-Info '%s' tag 'description' property, when present, must be a string." %
+                               (profile, tag))
         return True
 
     # Validate tags in self.profile['Bag-Info'].
