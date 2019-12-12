@@ -20,3 +20,6 @@ install:
 
 script:
   - coverage run test.py
+
+after_success:
+  - codecov
