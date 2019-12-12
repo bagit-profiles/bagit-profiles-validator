@@ -10,8 +10,13 @@ python:
   - "3.8-dev"  # 3.8 development branch
   - "nightly"  # nightly build
 
+matrix:
+  allow_failures:
+    - python: nightly
+
 install:
   - pip install -r requirements.txt
+  - pip install codecov
 
 script:
-  - python setup.py test
+  - coverage run tests.py

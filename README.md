@@ -2,6 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/bagit_profile.svg)](https://pypi.org/project/bagit_profile)
 [![Build Status](https://travis-ci.org/bagit-profiles/bagit-profiles-validator.svg?branch=master)](https://travis-ci.org/bagit-profiles/bagit-profiles-validator)
+[![codecov](https://codecov.io/gh/bagit-profiles/bagit-profiles-validator/branch/master/graph/badge.svg)](https://codecov.io/gh/bagit-profiles/bagit-profiles-validator)
 
 ### Description
 
