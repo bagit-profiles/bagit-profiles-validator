@@ -6,7 +6,7 @@ from shutil import copytree, rmtree
 from unittest import TestCase, main
 
 from bagit import Bag
-from bagit_profile import Profile, find_tag_files
+from bagit_profile import Profile, ProfileValidationError, find_tag_files
 
 PROFILE_URL = (
     "https://raw.github.com/bagit-profiles/bagit-profiles/master/bagProfileBar.json"
@@ -54,6 +54,93 @@ class TagFilesAllowedTest(TestCase):
         self.assertFalse(result)
         self.assertEqual(len(profile.report.errors), 1)
         self.assertTrue("Existing tag file" in profile.report.errors[0].value)
+
+
+class BagitProfileV1_3_0_Tests(TestCase):
+
+    def tearDown(self):
+        if isdir(self.bagdir):
+            rmtree(self.bagdir)
+
+    def setUp(self):
+        self.bagdir = join("/tmp", "bagit-profile-test-bagdir")
+        if isdir(self.bagdir):
+            rmtree(self.bagdir)
+        copytree("./fixtures/test-tag-files-allowed/bag", self.bagdir)
+        with open(join("./fixtures/test-tag-files-allowed/profile.json"), "r") as f:
+            self.profile_dict = json.loads(f.read())
+        self.profile_dict["BagIt-Profile-Info"]["BagIt-Profile-Version"] = "1.3.0"
+
+    def test_BagInfoTagDescriptionShouldNotBeABoolean(self):
+        self.profile_dict["Bag-Info"] = {"FakeTag": {"description": False}}
+        with self.assertRaises(ProfileValidationError) as context:
+            profile = Profile("TEST", self.profile_dict)
+        self.assertTrue("tag description property, when present, must be a string", context.exception.value)
+
+    def test_BagInfoTagDescriptionShouldNotBeANumber(self):
+        self.profile_dict["Bag-Info"] = {"FakeTag": {"description": 0}}
+        with self.assertRaises(ProfileValidationError) as context:
+            profile = Profile("TEST", self.profile_dict)
+        self.assertTrue("tag description property, when present, must be a string", context.exception.value)
+
+    def test_BagInfoTagDescriptionShouldBeAString(self):
+        self.profile_dict["Bag-Info"] = {"FakeTag": {"description": "some string"}}
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertTrue(result)
+        self.assertEqual(len(profile.report.errors), 0)
+
+    def test_PayloadManifestAllowedRequiredConsistency(self):
+        self.profile_dict["Manifests-Allowed"] = ["foo"]
+        self.profile_dict["Manifests-Required"] = ["sha256"]
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+        self.assertTrue("Required payload manifest type(s)" in profile.report.errors[0].value)
+
+    def test_TagManifestAllowedRequiredConsistency(self):
+        self.profile_dict["Tag-Manifests-Allowed"] = ["foo"]
+        self.profile_dict["Tag-Manifests-Required"] = ["sha256"]
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+        self.assertTrue("Required tag manifest type(s)" in profile.report.errors[0].value)
+
+    def test_DisallowedPayloadManifestInBag(self):
+        self.profile_dict["Manifests-Allowed"] = ["foo"]
+        self.profile_dict["Manifests-Required"] = []
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+        self.assertTrue("Unexpected payload manifest type(s)" in profile.report.errors[0].value)
+
+    def test_DisallowedTagManifestInBag(self):
+        self.profile_dict["Tag-Manifests-Allowed"] = ["foo"]
+        self.profile_dict["Tag-Manifests-Required"] = []
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+        self.assertTrue("Unexpected tag manifest type(s)" in profile.report.errors[0].value)
+
+    def test_AllowMorePayloadManifestsThanRequired(self):
+        self.profile_dict["Manifests-Allowed"] = ["sha256", "sha512"]
+        self.profile_dict["Manifests-Required"] = ["sha256"]
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertTrue(result)
+        self.assertEqual(len(profile.report.errors), 0)
+
+    def test_AllowMoreTagManifestsThanRequired(self):
+        self.profile_dict["Tag-Manifests-Allowed"] = ["sha256", "sha512"]
+        self.profile_dict["Tag-Manifests-Required"] = ["sha256"]
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertTrue(result)
+        self.assertEqual(len(profile.report.errors), 0)
 
 
 class BagitProfileConstructorTest(TestCase):
