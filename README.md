@@ -1,7 +1,7 @@
 # Bagit Profile (validator)
 
 [![PyPI version](https://img.shields.io/pypi/v/bagit_profile.svg)](https://pypi.org/project/bagit_profile)
-[![Build Status](https://travis-ci.org/bagit-profiles/bagit-profiles-validator.svg?branch=master)](https://travis-ci.org/bagit-profiles/bagit-profiles-validator)
+[![Build Status](https://travis-ci.com/bagit-profiles/bagit-profiles-validator.svg?branch=master)](https://travis-ci.com/bagit-profiles/bagit-profiles-validator)
 
 ### Description
 
