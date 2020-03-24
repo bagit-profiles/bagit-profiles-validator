@@ -56,6 +56,56 @@ class TagFilesAllowedTest(TestCase):
         self.assertTrue("Existing tag file" in profile.report.errors[0].value)
 
 
+class BagitProfileIgnoreBagInfoTagNameCapitalizationTests(TestCase):
+
+    def tearDown(self):
+        if isdir(self.bagdir):
+            rmtree(self.bagdir)
+
+    def setUp(self):
+        self.bagdir = join("/tmp", "bagit-profile-test-bagdir")
+        if isdir(self.bagdir):
+            rmtree(self.bagdir)
+        copytree("./fixtures/test-tag-files-allowed/bag", self.bagdir)
+        with open(join("./fixtures/test-tag-files-allowed/profile.json"), "r") as f:
+            self.profile_dict = json.loads(f.read())
+
+    def test_BagInfoTagsShouldAlwaysMatchWhenCaseIsSame_EvenWhenCaseIsRespected(self):
+        self.profile_dict["Bag-Info"] = {"BagIt-Profile-Identifier": {"required": True}}
+        profile = Profile("TEST", self.profile_dict, ignore_baginfo_tag_case=False)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertTrue(result)
+        self.assertEqual(len(profile.report.errors), 0)
+
+    def test_BagInfoTagsShouldAlwaysMatchWhenCaseIsSame_EvenWhenCaseIsIgnored(self):
+        self.profile_dict["Bag-Info"] = {"BagIt-Profile-Identifier": {"required": True}}
+        profile = Profile("TEST", self.profile_dict, ignore_baginfo_tag_case=True)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertTrue(result)
+        self.assertEqual(len(profile.report.errors), 0)
+
+    def test_BagInfoTagCaseShouldBeIgnoredWhenRequested(self):
+        self.profile_dict["Bag-Info"] = {"BAGIT-PROFILE-IDENTIFIER": {"required": True}}
+        profile = Profile("TEST", self.profile_dict, ignore_baginfo_tag_case=True)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertTrue(result)
+        self.assertEqual(len(profile.report.errors), 0)
+
+    def test_BagInfoTagCaseShouldNotBeIgnoredWhenToldNotTo(self):
+        self.profile_dict["Bag-Info"] = {"BAGIT-PROFILE-IDENTIFIER": {"required": True}}
+        profile = Profile("TEST", self.profile_dict, ignore_baginfo_tag_case=False)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+
+    def test_BagInfoTagCaseShouldNotBeIgnoredByDefault(self):
+        self.profile_dict["Bag-Info"] = {"BAGIT-PROFILE-IDENTIFIER": {"required": True}}
+        profile = Profile("TEST", self.profile_dict)
+        result = profile.validate(Bag(self.bagdir))
+        self.assertFalse(result)
+        self.assertEqual(len(profile.report.errors), 1)
+
+
 class BagitProfileV1_3_0_Tests(TestCase):
 
     def tearDown(self):

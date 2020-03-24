@@ -77,7 +77,10 @@ class ProfileValidationReport(object):  # pylint: disable=useless-object-inherit
 
 # Define the Profile class.
 class Profile(object):  # pylint: disable=useless-object-inheritance
-    def __init__(self, url, profile=None):
+
+    _baginfo_profile_id_tag = "BagIt-Profile-Identifier"
+
+    def __init__(self, url, profile=None, ignore_baginfo_tag_case=False):
         self.url = url
         if profile is None:
             profile = self.get_profile()
@@ -90,6 +93,7 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
         # Report of the errors in the last run of validate
         self.report = None
         self.profile = profile
+        self.ignore_baginfo_tag_case = ignore_baginfo_tag_case
 
     def _fail(self, msg):
         logging.error(msg)
@@ -230,43 +234,56 @@ class Profile(object):  # pylint: disable=useless-object-inheritance
             self._fail("%s: bag-info.txt is not present." % bag)
         # Then check for the required 'BagIt-Profile-Identifier' tag and ensure it has the same value
         # as self.url.
-        if "BagIt-Profile-Identifier" not in bag.info:
+        if self.ignore_baginfo_tag_case:
+            bag_info = {self.normalize_tag(k): v for k, v in bag.info.items()}
+            ignore_tag_case_help = ""
+        else:
+            bag_info = bag.info
+            ignore_tag_case_help = " Set 'ignore_baginfo_tag_case' to True if you wish to ignore tag case."
+
+        profile_id_tag = self.normalize_tag(self._baginfo_profile_id_tag)
+        if profile_id_tag not in bag_info:
             self._fail(
-                "%s: Required 'BagIt-Profile-Identifier' tag is not in bag-info.txt."
-                % bag
+                ("%s: Required '%s' tag is not in bag-info.txt." + ignore_tag_case_help)
+                % (bag, self._baginfo_profile_id_tag)
             )
         else:
-            if bag.info["BagIt-Profile-Identifier"] != self.url:
+            if bag_info[profile_id_tag] != self.url:
                 self._fail(
-                    "%s: 'BagIt-Profile-Identifier' tag does not contain this profile's URI: <%s> != <%s>"
-                    % (bag, bag.info["BagIt-Profile-Identifier"], self.url)
+                    "%s: '%s' tag does not contain this profile's URI: <%s> != <%s>"
+                    % (bag, profile_id_tag, bag_info[profile_id_tag], self.url)
                 )
         # Then, iterate through self.profile['Bag-Info'] and if a key has a dict containing a 'required' key that is
         # True, check to see if that key exists in bag.info.
         for tag in self.profile["Bag-Info"]:
+            normalized_tag = self.normalize_tag(tag)
             config = self.profile["Bag-Info"][tag]
             if "required" in config and config["required"] is True:
-                if tag not in bag.info:
+                if normalized_tag not in bag_info:
                     self._fail(
-                        "%s: Required tag '%s' is not present in bag-info.txt."
+                        ("%s: Required tag '%s' is not present in bag-info.txt." + ignore_tag_case_help)
                         % (bag, tag)
                     )
             # If the tag is in bag-info.txt, check to see if the value is constrained.
-            if "values" in config and tag in bag.info:
-                if bag.info[tag] not in config["values"]:
+            if "values" in config and normalized_tag in bag_info:
+                if bag_info[normalized_tag] not in config["values"]:
                     self._fail(
                         "%s: Required tag '%s' is present in bag-info.txt but does not have an allowed value ('%s')."
-                        % (bag, tag, bag.info[tag])
+                        % (bag, tag, bag_info[normalized_tag])
                     )
             # If the tag is nonrepeatable, make sure it only exists once. We do this by checking to see if the value for the key is a list.
             if "repeatable" in config and config["repeatable"] is False:
-                value = bag.info.get(tag)
+                value = bag_info.get(normalized_tag)
                 if isinstance(value, list):
                     self._fail(
                         "%s: Nonrepeatable tag '%s' occurs %s times in bag-info.txt."
                         % (bag, tag, len(value))
                     )
         return True
+
+    # Normalize to canonical lowercase, if profile is ignoring bag-info.txt tag case.
+    def normalize_tag(self, tag):
+        return tag if not self.ignore_baginfo_tag_case else tag.lower()
 
     # For each member of self.profile['manifests_required'], throw an exception if
     # the manifest file is not present.
@@ -513,6 +530,12 @@ def _main():
         help="Suppress all output except errors. Default: %(default)s",
     )
     parser.add_argument(
+        "-i", "--ignore-baginfo-tag-case",
+        dest="ignore_baginfo_tag_case",
+        action="store_true",
+        help="Ignore capitalization for Bag-Info tag names. Default: %(default)s",
+    )
+    parser.add_argument(
         "--log", dest="logdir", help="Log directory. Default: %(default)s"
     )
     parser.add_argument(
@@ -554,9 +577,10 @@ def _main():
     # Instantiate a profile, supplying its URI.
     if args.file:
         with open(args.file, "r") as local_file:
-            profile = Profile(profile_url, profile=local_file.read())
+            profile = Profile(profile_url, profile=local_file.read(),
+                              ignore_baginfo_tag_case=args.ignore_baginfo_tag_case)
     else:
-        profile = Profile(profile_url)
+        profile = Profile(profile_url, ignore_baginfo_tag_case=args.ignore_baginfo_tag_case)
 
     # Instantiate an existing Bag.
     bag = bagit.Bag(bagit_path)  # pylint: disable=no-member
